@@ -12,7 +12,12 @@ class defaultController extends appController
     function index()
     {
         $data['title'] = $data['top_title'] = '首页';
-        $tweets = Tweet::search()->find();
+        $recents = Entry::recents(10);
+        render_view('master', compact('recents'));
+
+
+
+        
         $data['tweets'] = $tweets;
         render( $data );
     }
