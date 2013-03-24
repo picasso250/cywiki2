@@ -1,19 +1,35 @@
-<div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
+<?php
+!defined('IN') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+?>
+<div class="masthead">
+  <ul class="nav nav-pills pull-right">
+    <?php foreach (c('nav') as $title => $link): ?>
+      <li class="<?= $link === $controller ? 'active' : '' ?>">
+        <a href="<?= ROOT . $link ?>"><?= $title ?></a>
+      </li>
+    <?php endforeach ?>
+    <?php if (!$GLOBALS['has_login']): ?>
+      <li><a href="<?= ROOT ?>register">注册</a></li>
+      <li><a href="<?= ROOT ?>login">登录</a></li>
+    <?php else: ?>
+      <?php $user = $GLOBALS['user'] ?>
+      <li class="dropdown">
+        <a class="dropdown-toggle"
+           data-toggle="dropdown"
+           href="#">
+            <?= htmlspecialchars($user->name) ?>
+            <b class="caret"></b>
           </a>
-          <a class="brand" href="/"><?=c('site_name')?></a>
-          <div class="nav-collapse">
-            <ul class="nav">
-              <li<?php if( g('a') == 'index' ): ?> class="active"<?php endif; ?>><a href="?a=index">Home</a></li>
-              <li<?php if( g('a') == 'about' ): ?> class="active"<?php endif; ?>><a href="?a=about">About</a></li>
-              <li<?php if( g('a') == 'contact' ): ?> class="active"<?php endif; ?>><a href="?a=contact">Contact</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
+        <ul class="dropdown-menu">
+          <li><a href="<?= ROOT ?>my">账户设置</a></li>
+          <li><a href="<?= ROOT ?>mywiki">我的 Wiki</a></li>
+          <li><a href="<?= ROOT ?>logout">退出</a></li>
+        </ul>
+      </li>
+    <?php endif ?>
+  </ul>
+  <h3 class="muted"><a href="<?= ROOT ?>"><?= c('site_name') ?></a></h3>
+</div>

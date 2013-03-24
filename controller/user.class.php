@@ -21,7 +21,7 @@ class userController extends appController
         }
 
         add_scripts('jquery.validate.min');
-        render_view('master', compact('username', 'msg'));
+        render(compact('username', 'msg'));
     }
 
     function logout()
@@ -48,7 +48,7 @@ class userController extends appController
         }
 
         add_scripts('jquery.validate.min');
-        render_view('master', compact('email'));
+        render(compact('email'));
     }
 
     function not_taken()
@@ -74,7 +74,7 @@ class userController extends appController
 
             redirect($GLOBALS['controller']);
         }
-        render_view('master', compact('user'));
+        render(compact('user'));
     }
 
     function mywiki()
@@ -85,7 +85,7 @@ class userController extends appController
         $createdEntries = $user->createdEntries();
         $editedEntries = $user->editedEntries();
 
-        render_view('master', compact('createdEntries', 'editedEntries'));
+        render(compact('createdEntries', 'editedEntries'));
     }
 
     function view()
@@ -95,7 +95,7 @@ class userController extends appController
         } else {
             $user = User::hasName($a);
         }
-        render_view('master', compact('user'));
+        render(compact('user'));
     }
 }
     

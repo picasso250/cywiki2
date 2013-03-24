@@ -71,14 +71,14 @@ class User extends CoreModel
     public function createdEntries()
     {
         // $this->updateCreatedEntries();
-        return Entry::search()->filterBy('creator', $this)->orderBy('id DESC')->find();
+        return Entry::search()->filterBy('creator', $this)->sort('id DESC')->find();
     }
 
     public function editedEntries()
     {
         return Entry::search()
             ->join(Version::search()->filterBy('editor', $this))
-            ->orderBy('updated DESC')
+            ->sort('updated DESC')
             ->distinct()
             ->find();
     }

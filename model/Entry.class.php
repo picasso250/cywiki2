@@ -22,7 +22,7 @@ class Entry extends CoreModel
 
     public function versions()
     {
-        return Version::search()->filterBy('entry', $this)->orderBy('id DESC')->find();
+        return Version::search()->filterBy('entry', $this)->sort('id DESC')->find();
     }
     
     public function latestVersion()
@@ -48,7 +48,7 @@ class Entry extends CoreModel
 
     public static function recents($num = 10)
     {
-        return self::search()->limit($num)->orderBy('updated DESC')->find();
+        return self::search()->limit($num)->sort('updated DESC')->find();
     }
 
     public function edit(User $user, $title, $content, $reason)

@@ -14,7 +14,7 @@ class wikiController extends appController
             if ($GLOBALS['has_login']) {
                 $watching = Watch::is($GLOBALS['user'], $entry);
             }
-            render_view('master', compact('entry', 'watching'));
+            render(compact('entry', 'watching'));
         } else {
             redirect("create?title=$name");
         }
@@ -31,7 +31,7 @@ class wikiController extends appController
         $title = $entry->title;
         $content = $entry->latestVersion()->content;
         add_scripts(array('preview'));
-        render_view('master', compact('entry', 'title', 'content'));
+        render(compact('entry', 'title', 'content'));
     }
 
     function _edit()
@@ -71,7 +71,7 @@ class wikiController extends appController
     function list()
     {
         $entries = Entry::search()->find();
-        render_view('master', compact('entries'));
+        render(compact('entries'));
     }
 
     function history()
@@ -111,7 +111,7 @@ class wikiController extends appController
         d($dr);
         $leftHtml = '';
 
-        render_view('master', compact('entry', 'r', 'l', 'id', 'versionCount', 'leftVer', 'rightVer', 'rightHtml'));
+        render(compact('entry', 'r', 'l', 'id', 'versionCount', 'leftVer', 'rightVer', 'rightHtml'));
     }
 
     function unwatch()
