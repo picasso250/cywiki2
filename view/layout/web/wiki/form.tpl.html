@@ -1,0 +1,34 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+if (!isset($url))
+    $url = ROOT . $GLOBALS['controller'];
+if (!isset($title)) 
+    $title = '';
+if (!isset($content))
+    $content = '';
+if (!isset($reason))
+    $reason = '';
+
+$id = _req('id');
+?>
+<form action="<?= $url ?>" method="post">
+  <?php if ($id): ?>
+    <input type="hidden" name="id" value="<?= $id ?>">
+  <?php endif ?>
+  <input type="text" name="title" class="span12" placeholder="标题" value="<?= $title ?>">
+  <textarea name="content" class="span12 " rows="16"><?= $content ?></textarea>
+  <input type="text" name="reason" class = "span12" placeholder="原因（可选）" value="<?= $reason ?>">
+  <input type="submit" class="btn btn-primary" value="<?= $buttonText ?>">
+  <button class="btn" id="previewButton">预览</button>
+</form>
+
+<div id="previewModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalTitle" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalTitle"></h3>
+  </div>
+  <div class="modal-body"></div>
+</div>

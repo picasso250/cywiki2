@@ -1,0 +1,45 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+?>
+<table class="table table-striped table-hover">
+  <caption>我创建的页面</caption>
+  <thead>
+    <tr>
+      <th>名称</th>
+      <th>创建时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php foreach ($createdEntries as $entry): ?>
+      <tr>
+        <td>
+          <a href="<?= ROOT . 'wiki/' . $entry->urlTitle() ?>"><?= htmlspecialchars($entry->title) ?></a>
+        </td>
+        <td><?= $entry->created ?></td>
+      </tr>
+    <?php endforeach ?>
+  </tbody>
+</table>
+
+<table class="table table-striped table-hover">
+  <caption>我编辑过的页面</caption>
+  <thead>
+    <tr>
+      <th>名称</th>
+      <th>编辑时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php foreach ($editedEntries as $entry): ?>
+      <tr>
+        <td>
+          <a href="<?= ROOT . 'wiki/' . $entry->urlTitle() ?>"><?= htmlspecialchars($entry->title) ?></a>
+        </td>
+        <td><?= $entry->latestVersion()->edited ?></td>
+      </tr>
+    <?php endforeach ?>
+  </tbody>
+</table>

@@ -1,0 +1,44 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+?>
+<h1>
+  Diff
+  <a href="<?= ROOT . 'wiki/' . $entry->title ?>"><?= $entry->title ?></a>
+</h1>
+
+<?php $pl = $l+1; $pr = $r+1; ?>
+<?php $nl = $l-1; $nr = $r-1; ?>
+<?php $hasP = ($pl > ($versionCount-1)); ?>
+<?php $hasN = ($nr < 0); ?>
+<ul class="pager">
+  <li class="previous <?= $hasP ? 'disabled' : '' ?>">
+    <a href="<?= $hasP ? '#' : htmlspecialchars("?id=$id&r=$pr&l=$pl") ?>">&larr; <?= !$hasP ? '更老版本' : '没有更老的版本' ?></a>
+  </li>
+  <li class="next <?= $hasN ? 'disabled' : '' ?>">
+    <a href="<?= $hasN ? '#' : htmlspecialchars("?id=$id&r=$nr&l=$nl") ?>"><?= !$hasN ? '更新版本' : '没有更新版本' ?> &rarr;</a>
+  </li>
+</ul>
+
+<div class="row-fluid">
+  <div class="span6">
+    <div>
+      <?php $u = $leftVer->editor(); ?>
+      <a href="<?= ROOT . 'user/' . $u->name ?>"><?= $u->name ?></a>
+    </div>
+    <div><?= $leftVer->reason ?: 'Edited' ?></div>
+    <div class="label"><?= $leftVer->edited ?></div>
+    <div><?= nl2br($leftVer->content) ?></div>
+  </div>
+  <div class="span6">
+    <div>
+      <?php $u = $rightVer->editor(); ?>
+      <a href="<?= ROOT . 'user/' . $u->name ?>"><?= $u->name ?></a>
+    </div>
+    <div><?= $rightVer->reason ?: 'Edited' ?></div>
+    <div class="label"><?= $rightVer->edited ?></div>
+    <div class="diff-content"><?= $rightHtml ?></div>
+  </div>
+</div>

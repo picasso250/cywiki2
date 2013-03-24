@@ -1,0 +1,38 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+?>
+  <div class="well">
+    <a href="https://github.com/picasso250/CY-wiki" target="_blank" class="btn btn-primary pull-right">View on GitHub</a>
+    <h1 class="">CY-wiki</h1>
+    <p>An open source wiki which suport Markdown.</p>
+  </div>
+
+<div class="row-fluid">
+  <div class="span12">
+    <h2>最近更新的词条</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>词条名</th>
+          <th>最后编辑者</th>
+        </tr>
+      </thead>
+    
+      <tbody>
+        <?php foreach ($recents as $i => $entry): ?>
+          <tr>
+            <td><?= $i+1 ?></td>
+            <td><a href="<?= ROOT . 'wiki/' . $entry->urlTitle() ?>"><?= htmlspecialchars($entry->title) ?></a></td>
+            <td><a href="<?php echo ROOT.'user/'.$entry->latestVersion()->editor()->id ?>"><?= $entry->latestVersion()->editor()->name ?></a></td>
+          </tr>
+        <?php endforeach ?>
+      </tbody>
+
+    </table>
+  </div>
+  <div class="span6"></div>
+</div>

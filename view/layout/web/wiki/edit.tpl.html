@@ -1,0 +1,13 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+$opts['buttonText'] = '保存';
+?>
+<h1>
+  编辑
+  <?= $entry->title ?>
+</h1>
+<hr>
+<?php render_view('wiki.form', $opts); ?>

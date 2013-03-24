@@ -1,0 +1,53 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+?>
+<h1>用户信息</h1>
+<dl class="dl-horizontal well">
+  <dt>邮箱：</dt>
+  <dd><?= htmlspecialchars($user->email) ?></dd>
+  <dt>昵称：</dt>
+  <dd><?= htmlspecialchars($user->name) ?></dd>
+</dl>
+
+<div class="well">
+  <a href="#nameModal" role="button" class="btn" data-toggle="modal">修改昵称</a>
+  <a href="#passwordModal" role="button" class="btn" data-toggle="modal">修改密码</a>
+</div>
+
+<div id="nameModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="nameModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="nameModalLabel">修改昵称</h3>
+  </div>
+  <form method="post">
+    <input type="hidden" name="action" value="edit">
+    <div class="modal-body">
+      <input type="text" name="name" value="<?= $user->name ?>">
+    </div>
+    <div class="form-actions modal-footer">
+      <button class="btn btn-primary">确认</button>
+    </div>
+  </form>
+</div>
+
+<div id="passwordModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="passwordModalLabel">修改密码</h3>
+  </div>
+  <form method="post">
+    <input type="hidden" name="action" value="edit">
+    <div class="modal-body">
+      <label>输入旧密码</label>
+      <input type="password" name="oldPass" value="">
+      <label>输入新密码</label>
+      <input type="text" name="newPass" value="">
+    </div>
+    <div class=" form-actions modal-footer">
+      <button class="btn btn-primary">确认</button>
+    </div>
+  </form>
+</div>

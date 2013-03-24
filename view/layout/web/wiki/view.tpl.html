@@ -1,0 +1,41 @@
+<?php
+!defined('IN_APP') && exit('ILLEGAL EXECUTION');
+/**
+ * @author  ryan <cumt.xiaochi@gmail.com>
+ */
+$version = $entry->latestVersion();
+?>
+<div class="btn-toolbar">
+  <div class="btn-group">
+    <a href="<?= ROOT . "edit?id=$entry->id" ?>" class="btn">编辑</a>
+    <a href="<?= ROOT . "diff?id=$entry->id" ?>" class="btn">Diff</a>
+  </div>
+  <?php if ($GLOBALS['has_login']): ?>
+    <?php if ($watching): ?>
+      <div class="btn-group">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          正在关注
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a href="<?= ROOT . "unwatch/$entry->id" ?>" class="">取消关注</a>
+          </li>
+        </ul>
+      </div>
+    <?php else: ?>
+      <div class="btn-group">
+        <a href="<?= ROOT . "watch/$entry->id" ?>" class="btn">关注</a>
+      </div>
+    <?php endif ?>
+  <?php endif ?>
+</div>
+
+<h1 class="wiki-title"><?= $entry->title ?></h1>
+<div class="wiki-content"><?= $version->toHtml() ?></div>
+<div class="row-fluid">
+  <div class="span6"></div>
+  <div class="span6">
+    <span class=""><?= $version->editor()->name ?></span> 最后编辑于 <span><?php echo $version->edited ?></span>
+  </div>
+</div>
