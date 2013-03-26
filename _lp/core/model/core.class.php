@@ -40,19 +40,27 @@ class CoreModel
         }
     }
 
+    // $info 的形式 array('expression', 'key' => 'value',...)
     public static function create($info = array())
     {
-        // 这里主要是为了解决 created=NOW()的问题
-        // given by array('key=?' => 'value', 'key' => 'value',...)
+        // 这里主要是为了解决 created=NOW() 的问题
         $keyArr = array();
         $valueArr = array();
         foreach ($info as $key => $value) {
-            $keyArr[] = (strpos($key, '=') === false) ? "$key=?s" : $key;
-            if ($value !== null) {
-                $valueArr[] = s($value);
+            if (is_object($value) && is_a($value, 'CoreModel')) {
+                $value = $value->id;
             }
+            if (is_numeric($key)) {
+                $t = explode('=', $value);
+                $key = $t[0];
+                $value = $t[1];
+                $valueArr[] = $value;
+            } else {
+                $valueArr[] = "'".s($value)."'";
+            }
+            $keyArr[] = "`$key`";
         }
-        $sql = 'INSERT INTO '.self::table().' ('.implode(',', $keyArr).') VALUES ('.implode(',', $valueArr).')';
+        $sql = 'INSERT INTO `'.self::table().'` ('.implode(',', $keyArr).') VALUES ('.implode(',', $valueArr).')';
         run_sql($sql);
         if (db_errno()) {
             throw new Exception("error when insert: ".db_error(), 1);
@@ -78,7 +86,7 @@ class CoreModel
     private function info()
     {
         $self = get_called_class();
-        $sql = 'SELECT * FROM '.self::table().' WHERE id='.s($this->id).' LIMIT 1';
+        $sql = 'SELECT * FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1";
         $ret = get_line($sql);
         if (empty($ret))
             throw new Exception(get_called_class() . " no id: $this->id");
@@ -87,7 +95,7 @@ class CoreModel
 
     public function exists()
     {
-        return false !== get_var('SELECT id FROM'.self::table().' WHERE id='.s($this->id).' LIMIT 1');
+        return false !== get_var('SELECT id FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1");
     }
 
     public static function table()
@@ -101,21 +109,22 @@ class CoreModel
 
     public function update($a, $value = null)
     {
-        $sql = 'UPDATE '.self::table().' SET ';
+        $exprArr = array();
         if($value !== null) { // given by key => value
-            $sql .= "$a=".s($value);
-        } else {
+            $exprArr[] = "`$a`='".s($value)."'";
+        } elseif (is_array($a)) {
             foreach ($a as $key => $value) {
-                $sql .= (strpos($key, '=') === false) ? "$key=?" : $key;
-                if ($value !== null) {
-                    $sql .= s($value);
+                if (is_numeric($key)) {
+                    $exprArr[] = $value;
+                } elseif ($value !== null) {
+                    $exprArr[] = "`$key`='".s($value)."'";
                 }
             }
         }
-        $sql .= ' WHERE id='.s($this->id);
+        $sql = 'UPDATE `'.self::table().'` SET '.implode(',', $exprArr)." WHERE `id`='".s($this->id)."' LIMIT 1";
         run_sql($sql);
         if (db_errno()) {
-            throw new Exception("update error: ".$db_error(), 1);
+            throw new Exception("update error: ".db_error(), 1);
         }
         $self = get_called_class();
         $this->info = $this->info(); // refresh data
@@ -168,7 +177,7 @@ class CoreModel
 
     public function del()
     {
-        $sql = 'DELETE FROM '.self::table().' WHERE id='.s($this->id);
+        $sql = 'DELETE FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1";
         run_sql($sql);
         if (db_errno()) {
             throw new Exception("delete error: ".db_error(), 1);
@@ -215,18 +224,18 @@ class Searcher
         $this->tables[] = $this->table;
     }
 
-    public function table()
+    public function table() // ?
     {
         return $this->table;
     }
-
 
     /**
      * $book = Book::search()->by('author.name', '曹雪芹');
      * 不支持 OR
      * 不支持 IN/BETWEEN
+     * 如果只传一个字符串，那么将会把这个字符串直接当作表达式来用！
      */
-    public function by($field, $value, $op = '=')
+    public function by($field, $value = null, $op = '=')
     {
         // 使得用户可以传一个object进来
         // is_object() 判断不可少，不然SAE上会把String也认为Ojbect
@@ -241,10 +250,11 @@ class Searcher
             $ref = $matches[1];
             $refKey = $matches[2];
             $refTable = $relationMap[$ref];
-            $this->conds[] = "$refTable.$refKey".$op.s($value);
-            $this->conds[] = "$this->table.$ref=$refTable.id"; // join on
+            $this->conds[] = "`$refTable`.`$refKey` ".$op." '".s($value)."'";
+            $this->conds[] = "`$this->table`.`$ref`=`$refTable`.id"; // join on
+            $this->tables[] = $refTable;
         } else {
-            $this->conds[] = $field.$op.s($value);
+            $this->conds[] = "`$field` $op '".s($value)."'";
         }
             
         return $this;
@@ -296,12 +306,12 @@ class Searcher
 
     public function find()
     {
-        $field = "$this->table.id";
+        $field = "`$this->table`.id";
         if ($this->distinct)
             $field = "DISTINCT($field)";
-        $tableStr = implode(',', $this->tables);
+        $tableStr = '`'.implode('`,`', array_unique($this->tables)).'`';
         if ($this->conds) {
-            $where = 'WHERE '.implode(' AND ', $this->conds);
+            $where = 'WHERE '.implode(' AND ', array_unique($this->conds));
         } else {
             $where = '';
         }
@@ -323,9 +333,9 @@ class Searcher
         $field = "$this->table.id";
         if ($this->distinct)
             $field = "DISTINCT($field)";
-        $tableStr = implode(',', $this->tables);
+        $tableStr = implode(',', array_unique($this->tables));
         if ($this->conds) {
-            $where = 'WHERE '.implode(' AND ', $this->conds);
+            $where = 'WHERE '.implode(' AND ', array_unique($this->conds));
         } else {
             $where = '';
         }
