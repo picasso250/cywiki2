@@ -30,12 +30,10 @@ class Entry extends CoreModel
         return new Version($this->latest);
     }
 
-    public static function create(User $user, $title, $content)
+    public static function create($info)
     {
-        $entry = parent::create(array(
-            'title' => $title,
-            'creator' => $user->id,
-            'created = NOW()' => null));
+        $info[] = 'created = NOW()';
+        $entry = parent::create($info);
 
         $version = Version::create($user, $entry, $content);
 

@@ -6,8 +6,8 @@ class userController extends appController
 {
     function login()
     {
-        $username = _post('username');
-        $password = _post('password');
+        $username = v('username');
+        $password = v('password');
 
         $msg = '';
         if ($username && $password) {
@@ -35,8 +35,8 @@ class userController extends appController
 
     function register()
     {
-        $email = _post('email');
-        $password = _post('password');
+        $email = v('email');
+        $password = v('password');
 
         if ($email && $password) {
             $user = User::create($email, $password);
@@ -62,13 +62,13 @@ class userController extends appController
         $user = $GLOBALS['user'];
 
         if ($GLOBALS['action'] === 'edit') {
-            $name = _post('name');
+            $name = v('name');
             if ($name) {
                 $user->update(compact('name'));
             }
 
-            $newPass = _post('newPass');
-            if ($newPass && $user->checkPassword(_post('oldPass'))) {
+            $newPass = v('newPass');
+            if ($newPass && $user->checkPassword(v('oldPass'))) {
                 $user->changePassword($newPass);
             }
 

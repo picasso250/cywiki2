@@ -36,9 +36,9 @@ class wikiController extends appController
 
     function _edit()
     {
-        $title = _post('title');
-        $content = _post('content');
-        $reason = _post('reason');
+        $title = v('title');
+        $content = v('content');
+        $reason = v('reason');
 
         $entry->edit($GLOBALS['user'], $title, $content, $reason);
         redirect("wiki/$title");
@@ -46,24 +46,27 @@ class wikiController extends appController
 
     function preview()
     {
-        $content = _post('content');
+        $content = v('content');
         echo '<div class="wiki-content">', markdown_parse($content), '</div>';
     }
 
     function create()
     {
+        $title = v('title');
         add_script('preview');
-        render('master');
+        render(compact('title'));
     }
 
     function _create()
     {
-        $title = _post('title');
-        $content = _post('content');
-        $reason = _post('reason');
+        $title = v('title');
+        $content = v('content');
+        $reason = v('reason');
 
         if ($title) {
-            $GLOBALS['user']->createEntry($title, $content);
+            $info = compact('title', 'content');
+            $info = g('user');
+            Entry::create($info);
             redirect("wiki/$title");
         }
     }
