@@ -8,12 +8,12 @@
   <ul class="nav nav-pills pull-right">
     <?php foreach (c('nav') as $title => $link): ?>
       <li class="<?= $link === $controller ? 'active' : '' ?>">
-        <a href="<?= ROOT . $link ?>"><?= $title ?></a>
+        <a href="<?= url($link) ?>"><?= $title ?></a>
       </li>
     <?php endforeach ?>
     <?php if (!$GLOBALS['has_login']): ?>
-      <li><a href="<?= ROOT ?>register">注册</a></li>
-      <li><a href="<?= ROOT ?>login">登录</a></li>
+      <li><a href="<?= url('register') ?>">注册</a></li>
+      <li><a href="<?= url('login') ?>">登录</a></li>
     <?php else: ?>
       <?php $user = $GLOBALS['user'] ?>
       <li class="dropdown">
@@ -24,12 +24,12 @@
             <b class="caret"></b>
           </a>
         <ul class="dropdown-menu">
-          <li><a href="<?= ROOT ?>my">账户设置</a></li>
-          <li><a href="<?= ROOT ?>mywiki">我的 Wiki</a></li>
-          <li><a href="<?= ROOT ?>logout">退出</a></li>
+          <li><a href="<?= url('my') ?>">账户设置</a></li>
+          <li><a href="<?= url('mywiki') ?>">我的 Wiki</a></li>
+          <li><a href="<?= url('logout') ?>">退出</a></li>
         </ul>
       </li>
     <?php endif ?>
   </ul>
-  <h3 class="muted"><a href="<?= ROOT ?>"><?= c('site_name') ?></a></h3>
+  <h3 class="muted"><a href="<?= url() ?>"><?= c('site_name') ?></a></h3>
 </div>

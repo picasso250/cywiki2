@@ -30,7 +30,7 @@ class wikiController extends appController
 
         $title = $entry->title;
         $content = $entry->latestVersion()->content;
-        add_scripts(array('preview'));
+        add_script(('preview'));
         render(compact('entry', 'title', 'content'));
     }
 
@@ -52,8 +52,8 @@ class wikiController extends appController
 
     function create()
     {
-        add_scripts('preview');
-        render_view('master');
+        add_script('preview');
+        render('master');
     }
 
     function _create()
@@ -68,7 +68,7 @@ class wikiController extends appController
         }
     }
 
-    function list()
+    function all()
     {
         $entries = Entry::search()->find();
         render(compact('entries'));

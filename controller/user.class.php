@@ -20,7 +20,7 @@ class userController extends appController
             }
         }
 
-        add_scripts('jquery.validate.min');
+        add_script('jquery.validate.min');
         render(compact('username', 'msg'));
     }
 
@@ -47,7 +47,7 @@ class userController extends appController
             }
         }
 
-        add_scripts('jquery.validate.min');
+        add_script('jquery.validate.min');
         render(compact('email'));
     }
 
