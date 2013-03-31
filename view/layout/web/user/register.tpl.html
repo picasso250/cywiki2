@@ -4,23 +4,26 @@
  * @author  ryan <cumt.xiaochi@gmail.com>
  */
 ?>
-<form action="<?= ROOT ?>register" method="post" class="form-horizontal">
-  <input type="hidden" name="back" value="<?= _req('back') ?>">
-  <div class="control-group">
-    <label class="control-label" for="inputEmail">邮箱：</label>
-    <div class="controls">
-      <input type="text" name="email" id="inputEmail" placeholder="" value="<?= $email ?>" class="required email">
+<form action="?" method="post" class="form-horizontal">
+  <input type="hidden" name="back" value="<?= v('back') ?>">
+  <fieldset>
+    <legend>注册帐户</legend>
+    <div class="control-group">
+      <label class="control-label" for="inputEmail">邮箱：</label>
+      <div class="controls">
+        <input type="text" name="email" id="inputEmail" placeholder="" value="<?= $email ?>" class="required email">
+      </div>
     </div>
-  </div>
-  <div class="control-group">
-    <label class="control-label" for="inputPassword">密码：</label>
-    <div class="controls">
-      <input type="text" name="password" id="inputPassword" placeholder="" class="required">
+    <div class="control-group">
+      <label class="control-label" for="inputPassword">密码：</label>
+      <div class="controls">
+        <input type="text" name="password" id="inputPassword" placeholder="" class="required">
+      </div>
     </div>
-  </div>
-  <div class="control-group ">
-    <div class="controls">
-      <button type="submit" class="btn btn-primary">注册</button>
+    <div class="control-group ">
+      <div class="controls">
+        <button type="submit" class="btn btn-primary">注册</button>
+      </div>
     </div>
-  </div>
+  </fieldset>
 </form>

@@ -14,7 +14,7 @@ class userController extends appController
             $user = User::check($username, $password);
             if ($user) {
                 $user->login();
-                redirect(_req('back'));
+                redirect(v('back'));
             } else {
                 $msg = $GLOBALS['config']['error']['info']['USERNAME_OR_PASSWORD_INCORRECT'];
             }
@@ -53,7 +53,7 @@ class userController extends appController
 
     function not_taken()
     {
-        $email = _req('email');
+        $email = v('email');
         echo User::has($email) ? 'false' : 'true';
     }
 

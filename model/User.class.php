@@ -11,7 +11,7 @@ class User extends CoreModel
         $arr = array(
             'email' => $email,
             'password' => md5($password),
-            'created=NOW()' => null);
+            'created=NOW()');
         return parent::create($arr);
     }
 
@@ -28,9 +28,14 @@ class User extends CoreModel
 
     public static function check($email, $password)
     {
-        $conds = array('email=? AND password=?' => array($email, md5($password)));
-        $info = Sdb::fetchRow('*', self::table(), $conds);
-        return $info ? new self($info) : false;
+        $r = self::search()->by('email', $email)->by('password', md5($password))->find(1);
+        if ($r) {
+            print_r($r);
+            exit;
+            return $r[0];
+        } else {
+            return false;
+        }
     }
 
     public function checkPassword($password)

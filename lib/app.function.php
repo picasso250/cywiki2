@@ -17,3 +17,9 @@ function add_script($script)
 {
     $GLOBALS['js'][] = $script;
 }
+
+function redirect($url = null)
+{
+    header('Location: '.url($url));
+    exit;
+}

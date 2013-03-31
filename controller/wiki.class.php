@@ -22,7 +22,7 @@ class wikiController extends appController
 
     function edit()
     {
-        $id = _req('id');
+        $id = v('id');
         if (!$id) {
             redirect();
         }
@@ -79,11 +79,11 @@ class wikiController extends appController
 
     function history()
     {
-        $id = _req('id');
+        $id = v('id');
         $entry = new Entry($id);
 
-        $r = _req('r') ?: 0;
-        $l = _req('l') ?: 1;
+        $r = v('r') ?: 0;
+        $l = v('l') ?: 1;
 
         $versions = $entry->versions();
         $versionCount = count($versions);

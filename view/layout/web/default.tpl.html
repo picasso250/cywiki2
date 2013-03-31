@@ -23,7 +23,7 @@
  	<?php @include_once( dirname(__FILE__) ) . DS . 'header.tpl.html'; ?>  
  
   <div class="container">
-        <?php 
+    <?php 
 		$tfile = 'view' . DS . 'layout' . DS  . g('layout') . DS . g('c') . DS . g('a') . '.tpl.html';
 		if( file_exists( AROOT . $tfile ) ) include( AROOT . $tfile );
 		else @include( CROOT . $tfile );
