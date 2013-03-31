@@ -13,4 +13,3 @@ class defaultController extends appController
         render(compact('recents'));
     }
 }
-    
