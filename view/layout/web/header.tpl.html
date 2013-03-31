@@ -11,11 +11,11 @@
         <a href="<?= url($link) ?>"><?= $title ?></a>
       </li>
     <?php endforeach ?>
-    <?php if (!$GLOBALS['has_login']): ?>
+    <?php if (!g('has_login')): ?>
       <li><a href="<?= url('register') ?>">注册</a></li>
       <li><a href="<?= url('login') ?>">登录</a></li>
     <?php else: ?>
-      <?php $user = $GLOBALS['user'] ?>
+      <?php $user = g('user') ?>
       <li class="dropdown">
         <a class="dropdown-toggle"
            data-toggle="dropdown"

@@ -8,10 +8,13 @@ class appController extends coreController
 	{
 		// 载入默认的
 		parent::__construct();
+        session_start();
+        if ($user = User::current()) {
+            $_GLOBALS['has_login'] = $_GLOBALS['user'] = $user;
+        }
 	}
 
 	// login check or something
-	
 	
 }
 
