@@ -15,9 +15,8 @@ class Watch extends CoreModel
 
     public static function is(User $user, Entry $entry)
     {
-        $conds = array('user=? AND entry=?' => array($user->id, $entry->id));
-        $info = Sdb::fetchRow('*', self::table(), $conds);
-        return $info ? new self($info) : false;
+        $r = self::search()->by('user', $user)->by('entry', $entry)->find(1);
+        return $r ? $r[0] : false;
     }
 
     public static function cancel(User $user, Entry $entry)

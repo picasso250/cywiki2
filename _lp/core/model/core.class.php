@@ -7,7 +7,7 @@
  * https://github.com/picasso250/ORM4LazyPHP
  * 
  * 这是一个专门为 LazyPHP 打造的 Active Record 类
- * Active Record 意味着数据库中的一行数据对应一个对象
+ * 数据库中的一行数据对应一个对象，而一个表对应一个类。
  * 
  * 使用方式：
  * $book = new Book($book_id);
@@ -23,9 +23,8 @@ class CoreModel
     protected $id = null;
     protected $info = null;
     
-    // new an object from id or array
     // 新建一个 Object
-    // 接受的参数是一个id
+    // 接受的参数是一个 id
     public function __construct($a)
     {
         if (is_array($a) && isset($a['id'])) { // new from array
@@ -40,17 +39,18 @@ class CoreModel
         }
     }
 
+    // 在数据库中插入一条数据
     // $info 的形式 array('expression', 'key' => 'value',...)
     public static function create($info = array())
     {
-        // 这里主要是为了解决 created=NOW() 的问题
         $keyArr = array();
         $valueArr = array();
         foreach ($info as $key => $value) {
             if (is_object($value) && is_a($value, 'CoreModel')) {
                 $value = $value->id;
             }
-            if (is_numeric($key)) {
+
+            if (is_numeric($key)) { // 这里主要是为了解决 created=NOW() 这种表达式
                 $t = explode('=', $value);
                 $key = $t[0];
                 $value = $t[1];
@@ -70,34 +70,30 @@ class CoreModel
         return new $self(last_id());
     }
 
-    // will we need that?
-    protected static function notNull($info)
-    {
-        return array_filter(array_values($info), function ($e) {
-            return ($e !== null && $e !== false);
-        });
-    }
-
+    // 将对象转为数组
     public function toArray()
     {
+        if ($this->info) {
+            return $this->info;
+        }
         return $this->info();
     }
 
-    private function info()
-    {
-        $self = get_called_class();
-        $sql = 'SELECT * FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1";
-        $ret = get_line($sql);
-        if (empty($ret))
-            throw new Exception(get_called_class() . " no id: $this->id");
-        return $this->info = $ret;
-    }
-
+    // 查询这条数据是否存在
+    // 如存在，顺带填充 info 数组
     public function exists()
     {
-        return false !== get_var('SELECT id FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1");
+        $sql = 'SELECT * FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1";
+        $ret = get_line($sql);
+        if (empty($ret)) {
+            return false;
+        } else {
+            $this->info = $ret;
+            return true;
+        }
     }
 
+    // 获取这个类对应的表名
     public static function table()
     {
         if (isset(static::$table)) {
@@ -107,6 +103,8 @@ class CoreModel
         }
     }
 
+    // 更新这条数据
+    // 接受传一个键值对数组作为参数，也接受传名和值两个参数
     public function update($a, $value = null)
     {
         $exprArr = array();
@@ -115,7 +113,7 @@ class CoreModel
         } elseif (is_array($a)) {
             foreach ($a as $key => $value) {
                 if (is_numeric($key)) {
-                    $exprArr[] = $value;
+                    $exprArr[] = $value; // 直接是表达式
                 } elseif ($value !== null) {
                     $exprArr[] = "`$key`='".s($value)."'";
                 }
@@ -130,6 +128,7 @@ class CoreModel
         $this->info = $this->info(); // refresh data
     }
 
+    // 给予程序员通过访问这个对象的属性来取数据的能力
     public function __get($name) 
     {
         if ($name === 'id') return $this->id;
@@ -137,7 +136,7 @@ class CoreModel
             $this->info = $this->info();
         $info = $this->info;
         if (is_bool($info)) {
-            throw new Exception("info empty, maybe because you have no id: $this->id in " . get_called_class());
+            throw new Exception("info empty, you have no id: $this->id in " . get_called_class());
         }
         if (!array_key_exists($name, $this->info)) {
             throw new Exception("no '$name' when get in class " . get_called_class());
@@ -145,22 +144,30 @@ class CoreModel
         return $this->info[$name];
     }
 
+    // 给予程序员通过这个类的属性赋值来更新数据库的能力
     public function __set($prop, $value)
     {
         $this->update($prop, $value);
     }
 
+    // 给予程序员查看属性存在与否的能力
     public function __isset($prop)
     {
-        $this->info();
+        if (empty($this->info))
+            $this->info = $this->info();
+        if (!is_array($this->info)) {
+            throw new Exception("no info when get id $this->id in class".get_called_class(), 1);
+        }
         return isset($this->info[$prop]);
     }
 
+    // 给名字，出值
     public function get($prop)
     {
         return $this->__get($prop);
     }
 
+    // 返回对应的外键所代表的对象
     public function __call($name, $args)
     {
         if (empty($this->info)) {
@@ -175,7 +182,8 @@ class CoreModel
         }
     }
 
-    public function del()
+    // 删除这条数据
+    public function delete()
     {
         $sql = 'DELETE FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1";
         run_sql($sql);
@@ -184,37 +192,51 @@ class CoreModel
         }
     }
 
+    // 开启搜索模式
     public static function search()
     {
         return new Searcher(get_called_class());
     }
 
+    // 获取这个类的外键映射表
     public static function relationMap()
     {
         $self = get_called_class();
         return isset($self::$relationMap) ? $self::$relationMap : array();
     }
 
-    public function underscoreToCamelCase($value) 
+    protected function underscoreToCamelCase($value) 
     {
         return implode(array_map(function($value) { return ucfirst($value); }, explode('_', $value)));
     }
      
-    public function camelCaseToUnderscore($value) 
+    protected function camelCaseToUnderscore($value) 
     {
         return preg_replace_callback('/([A-Z])/', function($char) { return '_'.strtolower($char[1]); }, lcfirst($value));
     }
+
+    // 从数据库中得到这条数据
+    private function info()
+    {
+        $sql = 'SELECT * FROM `'.self::table()."` WHERE `id`='".s($this->id)."' LIMIT 1";
+        $ret = get_line($sql);
+        if (empty($ret))
+            throw new Exception(get_called_class() . " no id: $this->id");
+        return $this->info = $ret;
+    }
 }
 
+// 搜索类，复杂的查询操作，通过这个类完成
 class Searcher
 {
-    private $table = null;
-    private $class = null;
-    private $tables = array();
-    private $conds = array();
-    private $orders = array();
-    private $limit = 1000;
-    private $offset = 0;
+    private $table    = null;
+    private $class    = null;
+    private $fields   = array();
+    private $tables   = array();
+    private $conds    = array();
+    private $orders   = array();
+    private $limit    = 1000;
+    private $offset   = 0;
     private $distinct = false;
     
     public function __construct($class)
@@ -224,15 +246,9 @@ class Searcher
         $this->tables[] = $this->table;
     }
 
-    public function table() // ?
-    {
-        return $this->table;
-    }
-
     /**
      * $book = Book::search()->by('author.name', '曹雪芹');
-     * 不支持 OR
-     * 不支持 IN/BETWEEN
+     * 操作符不支持 IN/BETWEEN
      * 如果只传一个字符串，那么将会把这个字符串直接当作表达式来用！
      */
     public function by($field, $value = null, $op = '=')
@@ -243,16 +259,31 @@ class Searcher
             $value = $value->id;
 
         $relationMap = $this->relationMap();
-        $tableDotKey = preg_match('/\b(\w+)\.(\w+)\b/', $field, $matches); // table.key = ?
-        $tableDotId = isset($relationMap[$field]);
+
+        // table.key
+        // 如果是 t1.key1 OR t2.key1 该如何处理？
+        $tableDotKey = preg_match('/\b`?(\w+)`?\.`?(\w+)`?\b/', $field, $matches); 
 
         if ($tableDotKey) {
-            $ref = $matches[1];
+            $refTable = $matches[1];
             $refKey = $matches[2];
-            $refTable = $relationMap[$ref];
-            $this->conds[] = "`$refTable`.`$refKey` ".$op." '".s($value)."'";
-            $this->conds[] = "`$this->table`.`$ref`=`$refTable`.id"; // join on
+            $foreignKey = $refTable;
+
+            // 如果有特意配置，就可以用外键名当作表名查询
+            if (isset($relationMap[$refTable])) {
+                $refTable = $relationMap[$refTable];
+            }
+
+            if ($value !== null) {
+                $cond = "`$refTable`.`$refKey` $op '".s($value)."'";
+            } else {
+                $cond = "($field)";
+            }
+            $this->conds[] = $cond;
+            $this->conds[] = "`$this->table`.`$foreignKey`=`$refTable`.id"; // join on
             $this->tables[] = $refTable;
+            $this->fields[] = "`$refTable`.`$refKey` AS {$refTable}_{$refKey}"; // 既然找到了，就搞上去
+            $this->fields[] = "`$refTable`.id AS {$refTable}_id";
         } else {
             $this->conds[] = "`$field` $op '".s($value)."'";
         }
@@ -282,33 +313,22 @@ class Searcher
         return $this;
     }
 
-    /**
-     * 这个函数没有用啊，删掉啊
-     */
-    public function join(Searcher $s)
-    {
-        $st = $s->table();
-        $rMap = array_flip($s->relationMap());
-        $refKey = $rMap[$this->table];
-        $this->conds[] = "$st.$refKey=$this->table.id";
-        $this->conds += $s->conds;
-
-        if (!in_array($st, $this->tables))
-            $this->tables[] = $st;
-        return $this;
-    }
-
     public function distinct()
     {
         $this->distinct = true;
         return $this;
     }
 
-    public function find()
+    // 执行查询
+    // 如查不到，返回空数组
+    public function find($limit = null, $offset = null)
     {
-        $field = "`$this->table`.id";
-        if ($this->distinct)
-            $field = "DISTINCT($field)";
+        if ($this->distinct) {
+            $field = "DISTINCT(`$this->table`.id)";
+        } else {
+            $this->fields[] = "`$this->table`.*";
+            $field = implode(',', array_unique($this->fields));
+        }
         $tableStr = '`'.implode('`,`', array_unique($this->tables)).'`';
         if ($this->conds) {
             $where = 'WHERE '.implode(' AND ', array_unique($this->conds));
@@ -316,21 +336,30 @@ class Searcher
             $where = '';
         }
         $orderByStr = $this->orders ? 'ORDER BY '.implode(',', $this->orders) : '';
+        if ($limit !== null) {
+            $this->limit = $limit;
+        }
+        if ($offset !== null) {
+            $this->offset = $offset;
+        }
         $limitStr = $this->limit ? "LIMIT $this->limit" : '';
         $tail = "$limitStr OFFSET $this->offset";
         $sql = "SELECT $field FROM $tableStr $where $orderByStr $tail";
-        $ids = get_data($sql);
+        $results = get_data($sql) ?: array();
 
         $ret = array();
-        foreach ($ids as $a) {
-            $ret[] = new $this->class($a['id']);
+        foreach ($results as $a) {
+            if (count($a) === 1) {
+                $a = $a['id'];
+            }
+            $ret[] = new $this->class($a);
         }
         return $ret;
     }
 
     public function count()
     {
-        $field = "$this->table.id";
+        $field = "`$this->table`.id";
         if ($this->distinct)
             $field = "DISTINCT($field)";
         $tableStr = implode(',', array_unique($this->tables));

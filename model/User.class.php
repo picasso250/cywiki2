@@ -17,21 +17,20 @@ class User extends CoreModel
 
     public static function has($email)
     {
-        return false !== Sdb::fetchRow('*', self::table(), array('email = ?' => $email));
+        $r = self::search()->by('email', $email)->find(1);
+        return $r ? $r[0] : false;
     }
 
     public static function hasName($name)
     {
-        $info = Sdb::fetchRow('*', self::table(), array('name=?' => $name));
-        return $info ? new self($info) : false;
+        $r = self::search()->by('name', $name)->find(1);
+        return $r ? $r[0] : false;
     }
 
     public static function check($email, $password)
     {
         $r = self::search()->by('email', $email)->by('password', md5($password))->find(1);
         if ($r) {
-            print_r($r);
-            exit;
             return $r[0];
         } else {
             return false;

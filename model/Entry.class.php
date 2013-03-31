@@ -16,8 +16,8 @@ class Entry extends CoreModel
 
     public static function has($title)
     {
-        $info = Sdb::fetchRow('*', self::table(), array('title = ?' => $title));
-        return $info ? new self($info) : false;
+        $r = self::search()->by('title', $title)->find(1);
+        return $r ? $r[0] : false;
     }
 
     public function versions()
